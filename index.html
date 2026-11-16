@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Weather App | How’s the sky today?</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Figtree:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root { box-sizing: border-box; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; padding: 2rem 1rem; display: flex; justify-content: center; align-items: flex-start;
+    font-family: 'Figtree', system-ui, sans-serif; color: #fff;
+    background: linear-gradient(160deg, #1e6fd9 0%, #5eb5f5 100%) fixed; transition: background .6s;
+  }
+  body[data-sky="sunny"]  { background: linear-gradient(160deg, #1f78e0 0%, #ffb347 100%) fixed; }
+  body[data-sky="cloudy"] { background: linear-gradient(160deg, #54657d 0%, #9fb1c7 100%) fixed; }
+  body[data-sky="rainy"]  { background: linear-gradient(160deg, #1f3556 0%, #4d79a8 100%) fixed; }
+  body[data-sky="snowy"]  { background: linear-gradient(160deg, #6f8fb5 0%, #dce9f7 100%) fixed; }
+  body[data-sky="stormy"] { background: linear-gradient(160deg, #1b1740 0%, #5a4a8c 100%) fixed; }
+
+  .app { width: 100%; max-width: 440px; }
+  h1 { font-family: 'Bricolage Grotesque', Georgia, serif; font-weight: 800; font-size: 2.1rem; line-height: 1.1; text-align: center; margin: .5rem 0 .4rem; }
+  .sub { text-align: center; margin: 0 0 1.6rem; opacity: .9; }
+
+  .panel { background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.3); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-radius: 26px; padding: 1.5rem; box-shadow: 0 25px 50px rgba(0,0,0,.25); }
+  .search { display: flex; gap: .5rem; }
+  .search input { flex: 1; min-width: 0; font: inherit; border: 0; border-radius: 50px; padding: .8rem 1.2rem; color: #1b2a41; background: #fff; }
+  .search input:focus-visible, .search button:focus-visible { outline: 3px solid #ffd166; outline-offset: 2px; }
+  .search button { font: inherit; font-weight: 700; border: 0; border-radius: 50px; padding: .8rem 1.3rem; background: #ffd166; color: #1b2a41; cursor: pointer; }
+  .search button:hover { background: #ffc43d; }
+
+  #weatherResult { display: none; text-align: center; margin-top: 1.6rem; }
+  #weatherResult.show { display: block; }
+  #icon { font-size: 4.5rem; line-height: 1; }
+  #cityName { font-family: 'Bricolage Grotesque', Georgia, serif; font-size: 1.7rem; margin: .4rem 0 0; }
+  #temperature { font-family: 'Bricolage Grotesque', Georgia, serif; font-size: 4.2rem; font-weight: 800; margin: 0; line-height: 1.1; }
+  #condition { font-size: 1.15rem; margin: 0 0 1.3rem; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: .6rem; }
+  .stat { background: rgba(255,255,255,.18); border-radius: 16px; padding: .8rem .4rem; }
+  .stat small { display: block; opacity: .85; font-size: .8rem; }
+  .stat b { font-size: 1.05rem; }
+  #message { text-align: center; margin: 1rem 0 0; min-height: 1.4rem; font-weight: 500; }
+  #note { font-size: .82rem; opacity: .85; margin: 1rem 0 0; }
+</style>
+</head>
+<body data-sky="default">
+
+<div class="app">
+  <h1>How’s the sky today?</h1>
+  <p class="sub">Type a city and I’ll tell you what to expect.</p>
+
+  <div class="panel">
+    <div class="search">
+      <label for="cityInput" style="position:absolute;left:-9999px">City name</label>
+      <input type="text" id="cityInput" placeholder="Try Delhi, London or Tokyo" autocomplete="off">
+      <button type="button" id="searchBtn">Search</button>
+    </div>
+
+    <div id="weatherResult" aria-live="polite">
+      <div id="icon" aria-hidden="true"></div>
+      <h3 id="cityName"></h3>
+      <h2 id="temperature"></h2>
+      <p id="condition"></p>
+      <div class="stats">
+        <div class="stat"><small>Humidity</small><b id="humidity"></b></div>
+        <div class="stat"><small>Wind</small><b id="wind"></b></div>
+        <div class="stat"><small>Pressure</small><b id="pressure"></b></div>
+      </div>
+      <p id="note"></p>
+    </div>
+
+    <p id="message" aria-live="polite"></p>
+  </div>
+</div>
+
+<script>
+  const $ = id => document.getElementById(id);
+
+  // Weather code -> text, emoji, sky theme
+  function describe(c) {
+    if (c === 0) return ['Clear sky', '☀️', 'sunny'];
+    if (c === 1) return ['Mostly clear', '🌤️', 'sunny'];
+    if (c === 2) return ['Partly cloudy', '⛅', 'cloudy'];
+    if (c === 3) return ['Overcast', '☁️', 'cloudy'];
+    if (c === 45 || c === 48) return ['Foggy', '🌫️', 'cloudy'];
+    if (c >= 51 && c
